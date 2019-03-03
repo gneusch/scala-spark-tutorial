@@ -1,5 +1,9 @@
 package com.sparkTutorial.rdd.nasaApacheWebLogs
 
+import java.util.Date
+
+import org.apache.spark.{SparkConf, SparkContext}
+
 object UnionLogProblem {
 
   def main(args: Array[String]) {
@@ -14,5 +18,15 @@ object UnionLogProblem {
 
        Make sure the head lines are removed in the resulting RDD.
      */
+    val conf = new SparkConf().setAppName("nasaLogUnionSample").setMaster("local[*]")
+    val sc = new SparkContext(conf)
+
+    val nasaJuneLogs = sc.textFile("in/nasa_19950701.tsv")
+    val nasaAugLogs = sc.textFile("in/nasa_19950801.tsv")
+    val nasaLogUnion = nasaJuneLogs.union(nasaAugLogs)
+    val nasaLogUnionSample = nasaLogUnion.sample(false,0.01d, System.currentTimeMillis)
+
+    nasaLogUnionSample.saveAsTextFile("out/sample_nasa_logs.tsv")
+
   }
 }

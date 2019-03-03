@@ -1,5 +1,8 @@
 package com.sparkTutorial.rdd.nasaApacheWebLogs
 
+import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
+
 object SameHostsProblem {
 
   def main(args: Array[String]) {
@@ -19,5 +22,23 @@ object SameHostsProblem {
 
        Make sure the head lines are removed in the resulting RDD.
      */
+
+    val conf = new SparkConf().setAppName("hostProblemApp").setMaster("local[*]")
+    val sparkContext = new SparkContext(conf)
+
+    val julyHosts = getHostFromLoglineRDD(sparkContext.textFile("in/nasa_19950701.tsv"))
+
+    val augHosts = getHostFromLoglineRDD(sparkContext.textFile("in/nasa_19950801.tsv"))
+
+    val intersectOfHosts = julyHosts.intersection(augHosts)
+
+    intersectOfHosts.saveAsTextFile("out/nasa_logs_same_hosts.csv")
+
+  }
+
+  def getHostFromLoglineRDD(logLines: RDD[String]): RDD[String] = {
+    logLines.filter( line => !(line.startsWith("host") && line.contains("bytes")))
+      .map( line => line.split("\t") )
+      .map( lineArray => lineArray(0) )
   }
 }

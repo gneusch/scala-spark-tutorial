@@ -1,0 +1,1 @@
+val string = "199.72.81.55\t-\t804571201\tGET\t/history/apollo/\t200\t6245"
